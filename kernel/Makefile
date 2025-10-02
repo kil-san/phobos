@@ -34,6 +34,7 @@ LIBS:=$(LIBS) $(KERNEL_ARCH_LIBS)
 KERNEL_OBJS=\
 $(patsubst %.o,$(PROJECT_INTERMEDIATE_DIR)/%.o,$(KERNEL_ARCH_OBJS)) \
 $(PROJECT_INTERMEDIATE_DIR)/kernel/kernel.o \
+$(patsubst interrupts/exceptions/%.c,$(PROJECT_INTERMEDIATE_DIR)/interrupts/exceptions/%.o,$(wildcard interrupts/exceptions/*.c)) \
 
 OBJS=\
 $(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/crtbegin.o \
@@ -48,18 +49,18 @@ $(KERNEL_OBJS) \
 $(LIBS) \
 $(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/crtend.o \
 
-$(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/asm/crti.o: $(ARCHDIR)/asm/crti.S
-	mkdir -p $(@D)
-	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
-
-$(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/asm/crtn.o: $(ARCHDIR)/asm/crtn.S
-	mkdir -p $(@D)
-	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
-
 .PHONY: all clean install install-headers install-kernel
 .SUFFIXES: .o .c .S
 
 all: $(PROJECT_INTERMEDIATE_DIR)/phobos.kernel install
+
+$(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/asm/%.o: $(ARCHDIR)/asm/%.S
+	mkdir -p $(@D)
+	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
+
+$(PROJECT_INTERMEDIATE_DIR)/interrupts/exceptions/%.o: interrupts/exceptions/%.c
+	mkdir -p $(@D)
+	$(CC) -MD -c $< -o $@ -std=gnu11 $(CFLAGS) $(CPPFLAGS)
 
 $(PROJECT_INTERMEDIATE_DIR)/phobos.kernel: $(OBJS) $(ARCHDIR)/linker.ld
 	mkdir -p $(@D)
