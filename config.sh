@@ -17,8 +17,13 @@ export INCLUDEDIR=$PREFIX/include
 export CFLAGS='-O2 -g'
 export CPPFLAGS=''
 
+export OUTPUT_DIR="$PWD/output"
+export INTERMEDIATE_DIR="$OUTPUT_DIR/intermediate"
+export SYSROOT_DIR="$OUTPUT_DIR/sysroot"
+export ISO_PATH="$OUTPUT_DIR/phobos.iso"
+
 # Configure the cross-compiler to use the desired system root.
-export SYSROOT="$(pwd)/sysroot"
+export SYSROOT="$SYSROOT_DIR"
 export CC="$CC --sysroot=$SYSROOT"
 
 # Work around that the -elf gcc targets doesn't have a system include directory

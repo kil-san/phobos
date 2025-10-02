@@ -2,13 +2,17 @@ DEFAULT_HOST!=../default-host.sh
 HOST?=DEFAULT_HOST
 HOSTARCH!=../target-triplet-to-arch.sh $(HOST)
 
+# Get the project-relative output directory.
+# We do this before changing the CWD.
+PROJECT_INTERMEDIATE_DIR:=$(INTERMEDIATE_DIR)/kernel
+
 CFLAGS?=-O2 -g
 CPPFLAGS?=
 LDFLAGS?=
 LIBS?=
 
-DESTDIR?=
-PREFIX?=/usr/local
+DESTDIR?=$(SYSROOT_DIR)
+PREFIX?=/usr
 EXEC_PREFIX?=$(PREFIX)
 BOOTDIR?=$(EXEC_PREFIX)/boot
 INCLUDEDIR?=$(PREFIX)/include
@@ -28,47 +32,49 @@ LDFLAGS:=$(LDFLAGS) $(KERNEL_ARCH_LDFLAGS)
 LIBS:=$(LIBS) $(KERNEL_ARCH_LIBS)
 
 KERNEL_OBJS=\
-$(KERNEL_ARCH_OBJS) \
-kernel/kernel.o \
+$(patsubst %.o,$(PROJECT_INTERMEDIATE_DIR)/%.o,$(KERNEL_ARCH_OBJS)) \
+$(PROJECT_INTERMEDIATE_DIR)/kernel/kernel.o \
 
 OBJS=\
-$(ARCHDIR)/crti.o \
-$(ARCHDIR)/crtbegin.o \
+$(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/crti.o \
+$(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/crtbegin.o \
 $(KERNEL_OBJS) \
-$(ARCHDIR)/crtend.o \
-$(ARCHDIR)/crtn.o \
+$(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/crtend.o \
+$(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/crtn.o \
 
 LINK_LIST=\
 $(LDFLAGS) \
-$(ARCHDIR)/crti.o \
-$(ARCHDIR)/crtbegin.o \
+$(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/crti.o \
+$(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/crtbegin.o \
 $(KERNEL_OBJS) \
 $(LIBS) \
-$(ARCHDIR)/crtend.o \
-$(ARCHDIR)/crtn.o \
+$(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/crtend.o \
+$(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/crtn.o \
 
 .PHONY: all clean install install-headers install-kernel
 .SUFFIXES: .o .c .S
 
-all: phobos.kernel
+all: $(PROJECT_INTERMEDIATE_DIR)/phobos.kernel install
 
-phobos.kernel: $(OBJS) $(ARCHDIR)/linker.ld
+$(PROJECT_INTERMEDIATE_DIR)/phobos.kernel: $(OBJS) $(ARCHDIR)/linker.ld
+	mkdir -p $(@D)
 	$(CC) -T $(ARCHDIR)/linker.ld -o $@ $(CFLAGS) $(LINK_LIST)
-	i686-elf-grub-file --is-x86-multiboot phobos.kernel
+	i686-elf-grub-file --is-x86-multiboot $(PROJECT_INTERMEDIATE_DIR)/phobos.kernel
 
-$(ARCHDIR)/crtbegin.o $(ARCHDIR)/crtend.o:
+$(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/crtbegin.o $(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/crtend.o:
+	mkdir -p $(@D)
 	OBJ=`$(CC) $(CFLAGS) $(LDFLAGS) -print-file-name=$(@F)` && cp "$$OBJ" $@
 
-.c.o:
+$(PROJECT_INTERMEDIATE_DIR)/%.o: %.c
+	mkdir -p $(@D)
 	$(CC) -MD -c $< -o $@ -std=gnu11 $(CFLAGS) $(CPPFLAGS)
 
-.S.o:
+$(PROJECT_INTERMEDIATE_DIR)/%.o: %.S
+	mkdir -p $(@D)
 	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
 
 clean:
-	rm -f phobos.kernel
-	rm -f $(OBJS) *.o */*.o */*/*.o
-	rm -f $(OBJS:.o=.d) *.d */*.d */*/*.d
+	rm -rf $(PROJECT_INTERMEDIATE_DIR)
 
 install: install-headers install-kernel
 
@@ -76,8 +82,8 @@ install-headers:
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	cp -R -p include/. $(DESTDIR)$(INCLUDEDIR)/.
 
-install-kernel: phobos.kernel
+install-kernel: $(PROJECT_INTERMEDIATE_DIR)/phobos.kernel
 	mkdir -p $(DESTDIR)$(BOOTDIR)
-	cp phobos.kernel $(DESTDIR)$(BOOTDIR)
+	cp $(PROJECT_INTERMEDIATE_DIR)/phobos.kernel $(DESTDIR)$(BOOTDIR)
 
 -include $(OBJS:.o=.d)

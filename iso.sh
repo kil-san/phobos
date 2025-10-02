@@ -1,15 +1,18 @@
 #!/bin/sh
 set -e
+. ./config.sh
 . ./build.sh
 
-mkdir -p isodir
-mkdir -p isodir/boot
-mkdir -p isodir/boot/grub
+ISODIR="$INTERMEDIATE_DIR/isodir"
 
-cp sysroot/boot/phobos.kernel isodir/boot/phobos.kernel
-cat > isodir/boot/grub/grub.cfg << EOF
+mkdir -p "$ISODIR"
+mkdir -p "$ISODIR/boot"
+mkdir -p "$ISODIR/boot/grub"
+
+cp "$SYSROOT_DIR/boot/phobos.kernel" "$ISODIR/boot/phobos.kernel"
+cat > "$ISODIR/boot/grub/grub.cfg" << EOF
 menuentry "phobos" {
 	multiboot /boot/phobos.kernel
 }
 EOF
-i686-elf-grub-mkrescue -o phobos.iso isodir
+i686-elf-grub-mkrescue -o "$ISO_PATH" "$ISODIR"

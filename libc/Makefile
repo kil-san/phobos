@@ -2,13 +2,17 @@ DEFAULT_HOST!=../default-host.sh
 HOST?=DEFAULT_HOST
 HOSTARCH!=../target-triplet-to-arch.sh $(HOST)
 
+# Get the project-relative output directory.
+# We do this before changing the CWD.
+PROJECT_INTERMEDIATE_DIR:=$(INTERMEDIATE_DIR)/libc
+
 CFLAGS?=-O2 -g
 CPPFLAGS?=
 LDFLAGS?=
 LIBS?=
 
-DESTDIR?=
-PREFIX?=/usr/local
+DESTDIR?=$(SYSROOT_DIR)
+PREFIX?=/usr
 EXEC_PREFIX?=$(PREFIX)
 INCLUDEDIR?=$(PREFIX)/include
 LIBDIR?=$(EXEC_PREFIX)/lib
@@ -43,41 +47,43 @@ HOSTEDOBJS=\
 $(ARCH_HOSTEDOBJS) \
 
 OBJS=\
-$(FREEOBJS) \
-$(HOSTEDOBJS) \
+$(patsubst %.o,$(PROJECT_INTERMEDIATE_DIR)/%.o,$(FREEOBJS)) \
+$(patsubst %.o,$(PROJECT_INTERMEDIATE_DIR)/%.o,$(HOSTEDOBJS)) \
 
-LIBK_OBJS=$(FREEOBJS:.o=.libk.o)
+LIBK_OBJS=$(patsubst %.o,$(PROJECT_INTERMEDIATE_DIR)/%.libk.o,$(FREEOBJS))
 
 #BINARIES=libc.a libk.a # Not ready for libc yet.
-BINARIES=libk.a
+BINARIES=$(patsubst %.a,$(PROJECT_INTERMEDIATE_DIR)/%.a,libk.a)
 
 .PHONY: all clean install install-headers install-libs
 .SUFFIXES: .o .libk.o .c .S
 
-all: $(BINARIES)
+all: $(BINARIES) install
 
-libc.a: $(OBJS)
+$(PROJECT_INTERMEDIATE_DIR)/libc.a: $(OBJS)
 	$(AR) rcs $@ $(OBJS)
 
-libk.a: $(LIBK_OBJS)
+$(PROJECT_INTERMEDIATE_DIR)/libk.a: $(LIBK_OBJS)
 	$(AR) rcs $@ $(LIBK_OBJS)
 
-.c.o:
+$(PROJECT_INTERMEDIATE_DIR)/%.o: %.c
+	mkdir -p $(@D)
 	$(CC) -MD -c $< -o $@ -std=gnu11 $(CFLAGS) $(CPPFLAGS)
 
-.c.S:
+$(PROJECT_INTERMEDIATE_DIR)/%.S: %.c
+	mkdir -p $(@D)
 	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
 
-.c.libk.o:
+$(PROJECT_INTERMEDIATE_DIR)/%.libk.o: %.c
+	mkdir -p $(@D)
 	$(CC) -MD -c $< -o $@ -std=gnu11 $(LIBK_CFLAGS) $(LIBK_CPPFLAGS)
 
-.S.libk.o:
+$(PROJECT_INTERMEDIATE_DIR)/%.libk.o: %.S
+	mkdir -p $(@D)
 	$(CC) -MD -c $< -o $@ $(LIBK_CFLAGS) $(LIBK_CPPFLAGS)
 
 clean:
-	rm -f $(BINARIES) *.a
-	rm -f $(OBJS) $(LIBK_OBJS) *.o */*.o */*/*.o
-	rm -f $(OBJS:.o=.d) $(LIBK_OBJS:.o=.d) *.d */*.d */*/*.d
+	rm -rf $(PROJECT_INTERMEDIATE_DIR)
 
 install: install-headers install-libs
 
