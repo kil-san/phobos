@@ -36,20 +36,25 @@ $(patsubst %.o,$(PROJECT_INTERMEDIATE_DIR)/%.o,$(KERNEL_ARCH_OBJS)) \
 $(PROJECT_INTERMEDIATE_DIR)/kernel/kernel.o \
 
 OBJS=\
-$(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/crti.o \
 $(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/crtbegin.o \
 $(KERNEL_OBJS) \
 $(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/crtend.o \
-$(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/crtn.o \
+
 
 LINK_LIST=\
 $(LDFLAGS) \
-$(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/crti.o \
 $(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/crtbegin.o \
 $(KERNEL_OBJS) \
 $(LIBS) \
 $(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/crtend.o \
-$(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/crtn.o \
+
+$(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/asm/crti.o: $(ARCHDIR)/asm/crti.S
+	mkdir -p $(@D)
+	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
+
+$(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/asm/crtn.o: $(ARCHDIR)/asm/crtn.S
+	mkdir -p $(@D)
+	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
 
 .PHONY: all clean install install-headers install-kernel
 .SUFFIXES: .o .c .S
