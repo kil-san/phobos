@@ -6,12 +6,16 @@
 #include <kernel/pic.h>
 #include <arch/i386/isr.h>
 
-void kernel_main(void) {
+void kernel_main(void)
+{
     gdt_install();
     idt_init();
     PIC_remap(0x20, 0x28);
     PIC_enable();
-	terminal_initialize();
-	printf("Hello, kernel World!\n");
-    while(1);
+    tty_initialize();
+    printf("Enter your name: ");
+    char name[128];
+    scanf("%s", name);
+    printf("Hello %s, welcome to kernel World\n", name);
+    while (1);
 }

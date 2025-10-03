@@ -4,6 +4,7 @@
     "isr.h": "c",
     "idt.h": "c",
     "tty.h": "c",
-    "ports.h": "c"
+    "ports.h": "c",
+    "stdio.h": "c"
   }
 }

@@ -2,6 +2,8 @@
 #include <kernel/ports.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <kernel/tty.h>
+#include <kernel/keyboard.h>
 
 static const char scancode_set1[128] = {
   [0x01] = 27,
@@ -135,5 +137,5 @@ void keyboard_event_processor(void)
     }
   }
 
-  printf("%c", c);
+  tty_putchar(c);
 }
