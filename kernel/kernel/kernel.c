@@ -13,4 +13,5 @@ void kernel_main(void) {
     PIC_enable();
 	terminal_initialize();
 	printf("Hello, kernel World!\n");
+    while(1);
 }

@@ -11,6 +11,7 @@ static idtr_t idtr;
 static bool vectors[IDT_MAX_DESCRIPTORS];
 
 extern void* isr_stub_table[];
+extern void* irq_stub_table[];
 
 void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags) {
     idt_entry_t* descriptor = &idt[vector];
@@ -29,6 +30,12 @@ void idt_init() {
     for (uint8_t vector = 0; vector < 32; vector++) {
         idt_set_descriptor(vector, isr_stub_table[vector], 0x8E);
         vectors[vector] = true;
+    }
+
+    // IRQs 32–47
+    for (uint8_t vector = 0; vector < 16; vector++) {
+        idt_set_descriptor(vector + 32, irq_stub_table[vector], 0x8E);
+        vectors[vector + 32] = true;
     }
 
     __asm__ volatile ("lidt %0" : : "m"(idtr)); // load the new IDT

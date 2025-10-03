@@ -1,57 +1,68 @@
-    .extern divide_by_zero_handler
-    .extern exception_handler
+.extern divide_by_zero_handler
+.extern exception_handler
 
 /* Macros */
-    .macro isr_err_stub num, handler
+.macro isr_err_stub num, handler
 isr_stub_\num:
+    pushl $\num         # Push interrupt number
+    movl %esp, %eax     # Pointer to struct regs
+    push %eax
     call \handler
+    addl $4, %esp       # Pop argument pointer
+    addl $8, %esp       # Pop int_no and err_code
     iret
-    .endm
+.endm
 
-    .macro isr_no_err_stub num, handler
+.macro isr_no_err_stub num, handler
 isr_stub_\num:
+    pushl $0            # Dummy error code if exception does not push one
+    pushl $\num         # Push interrupt number
+    movl %esp, %eax     # Pointer to struct regs
+    push %eax
     call \handler
+    addl $4, %esp       # Pop argument pointer
+    addl $8, %esp       # Pop int_no and err_code
     iret
-    .endm
+.endm
 
 /*-------------------------------
  * ISR definitions
  *-------------------------------*/
-    /* Divide-by-zero (exception 0) uses custom handler */
-    isr_no_err_stub 0, divide_by_zero_handler
+/* Divide-by-zero (exception 0) uses custom handler */
+isr_no_err_stub 0, divide_by_zero_handler
 
-    /* Other exceptions use generic handler */
-    isr_no_err_stub 1, exception_handler
-    isr_no_err_stub 2, exception_handler
-    isr_no_err_stub 3, exception_handler
-    isr_no_err_stub 4, exception_handler
-    isr_no_err_stub 5, exception_handler
-    isr_no_err_stub 6, exception_handler
-    isr_no_err_stub 7, exception_handler
-    isr_err_stub    8, exception_handler
-    isr_no_err_stub 9, exception_handler
-    isr_err_stub    10, exception_handler
-    isr_err_stub    11, exception_handler
-    isr_err_stub    12, exception_handler
-    isr_err_stub    13, exception_handler
-    isr_err_stub    14, exception_handler
-    isr_no_err_stub 15, exception_handler
-    isr_no_err_stub 16, exception_handler
-    isr_err_stub    17, exception_handler
-    isr_no_err_stub 18, exception_handler
-    isr_no_err_stub 19, exception_handler
-    isr_no_err_stub 20, exception_handler
-    isr_no_err_stub 21, exception_handler
-    isr_no_err_stub 22, exception_handler
-    isr_no_err_stub 23, exception_handler
-    isr_no_err_stub 24, exception_handler
-    isr_no_err_stub 25, exception_handler
-    isr_no_err_stub 26, exception_handler
-    isr_no_err_stub 27, exception_handler
-    isr_no_err_stub 28, exception_handler
-    isr_no_err_stub 29, exception_handler
-    isr_err_stub    30, exception_handler
-    isr_no_err_stub 31, exception_handler
+/* Other exceptions use generic handler */
+isr_no_err_stub 1, exception_handler
+isr_no_err_stub 2, exception_handler
+isr_no_err_stub 3, exception_handler
+isr_no_err_stub 4, exception_handler
+isr_no_err_stub 5, exception_handler
+isr_no_err_stub 6, exception_handler
+isr_no_err_stub 7, exception_handler
+isr_err_stub    8, exception_handler
+isr_no_err_stub 9, exception_handler
+isr_err_stub    10, exception_handler
+isr_err_stub    11, exception_handler
+isr_err_stub    12, exception_handler
+isr_err_stub    13, exception_handler
+isr_err_stub    14, exception_handler
+isr_no_err_stub 15, exception_handler
+isr_no_err_stub 16, exception_handler
+isr_err_stub    17, exception_handler
+isr_no_err_stub 18, exception_handler
+isr_no_err_stub 19, exception_handler
+isr_no_err_stub 20, exception_handler
+isr_no_err_stub 21, exception_handler
+isr_no_err_stub 22, exception_handler
+isr_no_err_stub 23, exception_handler
+isr_no_err_stub 24, exception_handler
+isr_no_err_stub 25, exception_handler
+isr_no_err_stub 26, exception_handler
+isr_no_err_stub 27, exception_handler
+isr_no_err_stub 28, exception_handler
+isr_no_err_stub 29, exception_handler
+isr_err_stub    30, exception_handler
+isr_no_err_stub 31, exception_handler
 
 /*-------------------------------
  * ISR Stub Table

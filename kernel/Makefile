@@ -35,6 +35,8 @@ KERNEL_OBJS=\
 $(patsubst %.o,$(PROJECT_INTERMEDIATE_DIR)/%.o,$(KERNEL_ARCH_OBJS)) \
 $(PROJECT_INTERMEDIATE_DIR)/kernel/kernel.o \
 $(patsubst interrupts/exceptions/%.c,$(PROJECT_INTERMEDIATE_DIR)/interrupts/exceptions/%.o,$(wildcard interrupts/exceptions/*.c)) \
+$(patsubst interrupts/irqs/%.c,$(PROJECT_INTERMEDIATE_DIR)/interrupts/irqs/%.o,$(wildcard interrupts/irqs/*.c)) \
+$(patsubst drivers/%.c,$(PROJECT_INTERMEDIATE_DIR)/drivers/%.o,$(wildcard drivers/*.c)) \
 
 OBJS=\
 $(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/crtbegin.o \
@@ -59,6 +61,14 @@ $(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/asm/%.o: $(ARCHDIR)/asm/%.S
 	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
 
 $(PROJECT_INTERMEDIATE_DIR)/interrupts/exceptions/%.o: interrupts/exceptions/%.c
+	mkdir -p $(@D)
+	$(CC) -MD -c $< -o $@ -std=gnu11 $(CFLAGS) $(CPPFLAGS)
+
+$(PROJECT_INTERMEDIATE_DIR)/interrupts/irqs/%.o: interrupts/irqs/%.c
+	mkdir -p $(@D)
+	$(CC) -MD -c $< -o $@ -std=gnu11 $(CFLAGS) $(CPPFLAGS)
+
+$(PROJECT_INTERMEDIATE_DIR)/drivers/%.o: drivers/%.c
 	mkdir -p $(@D)
 	$(CC) -MD -c $< -o $@ -std=gnu11 $(CFLAGS) $(CPPFLAGS)
 

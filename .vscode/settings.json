@@ -3,6 +3,7 @@
     "stdint.h": "c",
     "isr.h": "c",
     "idt.h": "c",
-    "tty.h": "c"
+    "tty.h": "c",
+    "ports.h": "c"
   }
 }
