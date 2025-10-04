@@ -20,7 +20,7 @@ export CPPFLAGS=''
 export OUTPUT_DIR="$PWD/output"
 export INTERMEDIATE_DIR="$OUTPUT_DIR/intermediate"
 export SYSROOT_DIR="$OUTPUT_DIR/sysroot"
-export ISO_PATH="$OUTPUT_DIR/phobos.iso"
+export ISO_PATH="$OUTPUT_DIR/phoibos.iso"
 
 # Configure the cross-compiler to use the desired system root.
 export SYSROOT="$SYSROOT_DIR"

@@ -54,7 +54,7 @@ $(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/crtend.o \
 .PHONY: all clean install install-headers install-kernel
 .SUFFIXES: .o .c .S
 
-all: $(PROJECT_INTERMEDIATE_DIR)/phobos.kernel install
+all: $(PROJECT_INTERMEDIATE_DIR)/phoibos.kernel install
 
 $(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/asm/%.o: $(ARCHDIR)/asm/%.S
 	mkdir -p $(@D)
@@ -72,10 +72,10 @@ $(PROJECT_INTERMEDIATE_DIR)/drivers/%.o: drivers/%.c
 	mkdir -p $(@D)
 	$(CC) -MD -c $< -o $@ -std=gnu11 $(CFLAGS) $(CPPFLAGS)
 
-$(PROJECT_INTERMEDIATE_DIR)/phobos.kernel: $(OBJS) $(ARCHDIR)/linker.ld
+$(PROJECT_INTERMEDIATE_DIR)/phoibos.kernel: $(OBJS) $(ARCHDIR)/linker.ld
 	mkdir -p $(@D)
 	$(CC) -T $(ARCHDIR)/linker.ld -o $@ $(CFLAGS) $(LINK_LIST)
-	i686-elf-grub-file --is-x86-multiboot $(PROJECT_INTERMEDIATE_DIR)/phobos.kernel
+	i686-elf-grub-file --is-x86-multiboot $(PROJECT_INTERMEDIATE_DIR)/phoibos.kernel
 
 $(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/crtbegin.o $(PROJECT_INTERMEDIATE_DIR)/$(ARCHDIR)/crtend.o:
 	mkdir -p $(@D)
@@ -98,8 +98,8 @@ install-headers:
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	cp -R -p include/. $(DESTDIR)$(INCLUDEDIR)/.
 
-install-kernel: $(PROJECT_INTERMEDIATE_DIR)/phobos.kernel
+install-kernel: $(PROJECT_INTERMEDIATE_DIR)/phoibos.kernel
 	mkdir -p $(DESTDIR)$(BOOTDIR)
-	cp $(PROJECT_INTERMEDIATE_DIR)/phobos.kernel $(DESTDIR)$(BOOTDIR)
+	cp $(PROJECT_INTERMEDIATE_DIR)/phoibos.kernel $(DESTDIR)$(BOOTDIR)
 
 -include $(OBJS:.o=.d)

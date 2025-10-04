@@ -9,10 +9,10 @@ mkdir -p "$ISODIR"
 mkdir -p "$ISODIR/boot"
 mkdir -p "$ISODIR/boot/grub"
 
-cp "$SYSROOT_DIR/boot/phobos.kernel" "$ISODIR/boot/phobos.kernel"
+cp "$SYSROOT_DIR/boot/phoibos.kernel" "$ISODIR/boot/phoibos.kernel"
 cat > "$ISODIR/boot/grub/grub.cfg" << EOF
-menuentry "phobos" {
-	multiboot /boot/phobos.kernel
+menuentry "phoibos" {
+	multiboot /boot/phoibos.kernel
 }
 EOF
 i686-elf-grub-mkrescue -o "$ISO_PATH" "$ISODIR"
